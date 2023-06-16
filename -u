@@ -1,0 +1,527 @@
+zabbix_export:
+  version: '5.2'
+  date: '2023-05-02T04:30:41Z'
+  groups:
+    -
+      name: 'Monitoring Templates'
+  templates:
+    -
+      template: 'Eltex ESR-21'
+      name: 'Eltex ESR-21'
+      description: standart_R
+      groups:
+        -
+          name: 'Monitoring Templates'
+      items:
+        -
+          name: Vendor
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.2.1.1.1.0
+          key: 1.3.6.1.2.1.1.1.0
+          delay: 1d
+          history: 1d
+          trends: '0'
+          value_type: TEXT
+          inventory_link: TAG
+          preprocessing:
+            -
+              type: REGEX
+              parameters:
+                - '.*(Eltex).*'
+                - Eltex
+        -
+          name: Version_IOS
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.2.1.47.1.1.1.1.10.680000
+          key: 1.3.6.1.2.1.47.1.1.1.1.10.680000
+          delay: 1d
+          history: 1d
+          trends: '0'
+          value_type: TEXT
+          inventory_link: OS
+          request_method: POST
+        -
+          name: 'Serial number'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.2.1.47.1.1.1.1.11.680000
+          key: 1.3.6.1.2.1.47.1.1.1.1.11.680000
+          delay: 1d
+          history: 1d
+          trends: '0'
+          value_type: TEXT
+          inventory_link: SERIALNO_A
+          request_method: POST
+        -
+          name: 'CPU Memory Used'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.9.9.48.1.1.1.5.1
+          key: 1.3.6.1.4.1.9.9.48.1.1.1.5.1
+          history: 10d
+          trends: 90d
+          units: byte
+        -
+          name: 'CPU Memory Free'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.9.9.48.1.1.1.6.1
+          key: 1.3.6.1.4.1.9.9.48.1.1.1.6.1
+          history: 10d
+          trends: 90d
+          units: byte
+        -
+          name: 'Загрузка CPU'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.9.9.109.1.1.1.1.6.0
+          key: 1.3.6.1.4.1.9.9.109.1.1.1.1.6.0
+          trends: 90d
+          units: '%'
+          request_method: POST
+          triggers:
+            -
+              expression: '{last()}>80'
+              name: '{HOST.CONN} Высокая загрузка процессора'
+              priority: WARNING
+        -
+          name: 'Загрузка CPU 1 min'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.9.9.109.1.1.1.1.7.0
+          key: 1.3.6.1.4.1.9.9.109.1.1.1.1.7.0
+          history: 10d
+          trends: 90d
+          units: '%'
+        -
+          name: 'Загрузка CPU 5 min'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.9.9.109.1.1.1.1.8.0
+          key: 1.3.6.1.4.1.9.9.109.1.1.1.1.8.0
+          history: 10d
+          trends: 90d
+          units: '%'
+        -
+          name: 'Температура CPU'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.89.53.15.1.9.0
+          key: 1.3.6.1.4.1.89.53.15.1.9.0
+          history: 30d
+          trends: 30d
+          units: С
+        -
+          name: 'Температура шасси'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.89.53.15.1.12.0
+          key: 1.3.6.1.4.1.89.53.15.1.12.0
+          history: 30d
+          trends: 30d
+          units: С
+        -
+          name: 'Доступность узла'
+          type: SIMPLE
+          key: 'icmpping[,3,,,]'
+          delay: 90s
+          trends: 90d
+          request_method: POST
+          triggers:
+            -
+              expression: '{last()}=0'
+              name: '{HOST.CONN} Узел недоступен'
+              priority: DISASTER
+        -
+          name: Model
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.2.1.1.1.0
+          key: Model
+          delay: 1d
+          history: 1d
+          trends: '0'
+          value_type: TEXT
+          inventory_link: TYPE
+          preprocessing:
+            -
+              type: REGEX
+              parameters:
+                - '.*(ESR-21).*'
+                - ESR-21
+          request_method: POST
+        -
+          name: Hostname
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.2.1.1.5.0
+          key: sysName
+          delay: 1d
+          history: 1d
+          trends: '0'
+          value_type: TEXT
+          inventory_link: NAME
+          request_method: POST
+        -
+          name: Timetikcs
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.2.1.1.3.0
+          key: Timetikcs
+          delay: 20m
+          history: 1d
+          trends: 1d
+          units: uptime
+          inventory_link: MACADDRESS_A
+          preprocessing:
+            -
+              type: MULTIPLIER
+              parameters:
+                - '0.01'
+          request_method: POST
+      discovery_rules:
+        -
+          name: 'Interface IF-MIB'
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#IFDESCR},IF-MIB::ifDescr,{#IFALIAS},IF-MIB::ifAlias,{#IFADMINSTATUS},IF-MIB::ifAdminStatus]'
+          key: ifmib
+          delay: 1h
+          filter:
+            conditions:
+              -
+                macro: '{#IFADMINSTATUS}'
+                value: '@ifAdminstatus'
+                formulaid: A
+              -
+                macro: '{#IFDESCR}'
+                value: '@ifDescr'
+                formulaid: C
+              -
+                macro: '{#IFALIAS}'
+                value: '@ifAlias'
+                formulaid: B
+          lifetime: '0'
+          item_prototypes:
+            -
+              name: 'Ошибки {#IFALIAS}'
+              type: SNMP_AGENT
+              snmp_oid: '.1.3.6.1.2.1.2.2.1.14.{#SNMPINDEX}'
+              key: 'Errors[{#IFDESCR}]'
+              delay: 180s
+              trends: 90d
+              units: p/180s
+              preprocessing:
+                -
+                  type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+              request_method: POST
+              trigger_prototypes:
+                -
+                  expression: '{delta(60)}>100'
+                  name: '{HOST.CONN}  более 100 пакетов с ошибками - {#IFALIAS}'
+                  priority: INFO
+            -
+              name: 'Входящий трафик {#IFALIAS}'
+              type: SNMP_AGENT
+              snmp_oid: '.1.3.6.1.2.1.2.2.1.10.{#SNMPINDEX}'
+              key: 'ifInBPS[{#IFDESCR}]'
+              delay: 60s
+              trends: 90d
+              units: bps
+              preprocessing:а
+                -
+                  type: MULTIPLIER
+                  parameters:
+                    - '8'
+                -
+                  type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+              request_method: POST
+            -
+              name: 'Статус {#IFALIAS}'
+              type: SNMP_AGENT
+              snmp_oid: '.1.3.6.1.2.1.2.2.1.8.{#SNMPINDEX}'
+              key: 'ifOperStatus[{#IFDESCR}]'
+              delay: 300s
+              trends: 90d
+              request_method: POST
+              trigger_prototypes:
+                -
+                  expression: '{last(0)}<>1'
+                  name: '{HOST.CONN} Статус - {#IFALIAS}'
+                  priority: HIGH
+            -
+              name: 'Исходящий трафик {#IFALIAS}'
+              type: SNMP_AGENT
+              snmp_oid: '.1.3.6.1.2.1.2.2.1.16.{#SNMPINDEX}'
+              key: 'ifOutBPS[{#IFDESCR}]'
+              delay: 60s
+              trends: 90d
+              units: bps
+              preprocessing:
+                -
+                  type: MULTIPLIER
+                  parameters:
+                    - '8'
+                -
+                  type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+              request_method: POST
+            -
+              name: 'Скорость {#IFALIAS}'
+              type: SNMP_AGENT
+              snmp_oid: '.1.3.6.1.2.1.2.2.1.5.{#SNMPINDEX}'
+              key: 'ifSpeed[{#IFDESCR}]'
+              delay: 2h
+              trends: 90d
+              units: bps
+              request_method: POST
+          trigger_prototypes:
+            -
+              expression: '{Eltex ESR-21:ifInBPS[{#IFDESCR}].avg(60)}/{Eltex ESR-21:ifSpeed[{#IFDESCR}].last(60)}>0.9'
+              name: '{HOST.CONN} Загрузка канала > 90% (IN) - {#IFALIAS}'
+              priority: AVERAGE
+            -
+              expression: '{Eltex ESR-21:ifOutBPS[{#IFDESCR}].avg(60)}/{Eltex ESR-21:ifSpeed[{#IFDESCR}].last(60)}>0.9'
+              name: '{HOST.CONN} Загрузка канала >90% (OUT) - {#IFALIAS}'
+              priority: AVERAGE
+          graph_prototypes:
+            -
+              name: '{#IFDESCR} {#IFALIAS}'
+              graph_items:
+                -
+                  drawtype: BOLD_LINE
+                  color: 0000CC
+                  item:
+                    host: 'Eltex ESR-21'
+                    key: 'ifInBPS[{#IFDESCR}]'
+                -
+                  sortorder: '1'
+                  drawtype: GRADIENT_LINE
+                  color: 00EE00
+                  item:
+                    host: 'Eltex ESR-21'
+                    key: 'ifOutBPS[{#IFDESCR}]'
+                -
+                  sortorder: '2'
+                  drawtype: DASHED_LINE
+                  color: AAAA00
+                  item:
+                    host: 'Eltex ESR-21'
+                    key: 'Errors[{#IFDESCR}]'
+          request_method: POST
+      macros:
+        -
+          macro: '{$SNMP_COMMUNITY}'
+          value: Km8Nf4k2
+        -
+          macro: '{$SNMP_PORT}'
+          value: '161'
+  triggers:
+    -
+      expression: '{Eltex ESR-21:1.3.6.1.4.1.9.9.109.1.1.1.1.6.0.nodata(600)}<>0 and {Eltex ESR-21:icmpping[,3,,,].last()}=1'
+      name: '{HOST.CONN} НЕТ ДАННЫХ'
+    -
+      expression: '{Eltex ESR-21:1.3.6.1.4.1.89.53.15.1.9.0.last()}>60 or {Eltex ESR-21:1.3.6.1.4.1.89.53.15.1.12.0.last()}>60'
+      name: '{HOST.CONN} Перегрев'
+      priority: DISASTER
+  graphs:
+    -
+      name: 'CPU Memory'
+      type: STACKED
+      graph_items:
+        -
+          sortorder: '1'
+          color: 1A7C11
+          item:
+            host: 'Eltex ESR-21'
+            key: 1.3.6.1.4.1.9.9.48.1.1.1.6.1
+        -
+          sortorder: '2'
+          color: F63100
+          item:
+            host: 'Eltex ESR-21'
+            key: 1.3.6.1.4.1.9.9.48.1.1.1.5.1
+    -
+      name: 'Доступность узла'
+      yaxismax: '2'
+      ymin_type_1: FIXED
+      ymax_type_1: FIXED
+      graph_items:
+        -
+          drawtype: BOLD_LINE
+          color: EE0000
+          item:
+            host: 'Eltex ESR-21'
+            key: 'icmpping[,3,,,]'
+    -
+      name: 'Загрузка CPU'
+      ymin_type_1: FIXED
+      ymax_type_1: FIXED
+      graph_items:
+        -
+          sortorder: '1'
+          drawtype: BOLD_LINE
+          color: 0000EE
+          item:
+            host: 'Eltex ESR-21'
+            key: 1.3.6.1.4.1.9.9.109.1.1.1.1.6.0
+        -
+          sortorder: '2'
+          drawtype: GRADIENT_LINE
+          color: 00FF00
+          item:
+            host: 'Eltex ESR-21'
+            key: 1.3.6.1.4.1.9.9.109.1.1.1.1.7.0
+        -
+          sortorder: '3'
+          drawtype: FILLED_REGION
+          color: C62828
+          item:
+            host: 'Eltex ESR-21'
+            key: 1.3.6.1.4.1.9.9.109.1.1.1.1.8.0
+    -
+      name: Температура
+      graph_items:
+        -
+          sortorder: '1'
+          drawtype: BOLD_LINE
+          color: 00FF00
+          calc_fnc: ALL
+          item:
+            host: 'Eltex ESR-21'
+            key: 1.3.6.1.4.1.89.53.15.1.9.0
+        -
+          sortorder: '2'
+          drawtype: GRADIENT_LINE
+          color: 4000FF
+          item:
+            host: 'Eltex ESR-21'
+            key: 1.3.6.1.4.1.89.53.15.1.12.0
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+           
+            
+            
+            
+            
+snmpwalk -v 2c -c mytestcommunity   192.168.10.1 1.3.6.1.2.1.2.2.1.6 (MAC-адрес)
+snmpwalk -v 2c -c mytestcommunity   192.168.10.1 1.3.6.1.2.1.2.2.1.7
+snmpwalk -v 2c -c mytestcommunity   192.168.10.1 1.3.6.1.2.1.2.2.1.9
+snmpwalk -v 2c -c mytestcommunity   192.168.10.1 1.3.6.1.2.1.2.2.1.20
+snmpwalk -v 2c -c mytestcommunity   192.168.10.1 1.3.6.1.2.1.31.1.1 (много всего)
+snmpwalk -v 2c -c mytestcommunity   192.168.10.1 1.3.6.1.2.1.31.1.1.1.14
+
+
+
+discovery: discovery[{#IFNAME},1.3.6.1.2.1.31.1.1.1.1,  {#IFALIAS},1.3.6.1.2.1.31.1.1.1.18, {#IFDESCR},1.3.6.1.2.1.2.2.1.2, {#IFTYPE},1.3.6.1.2.1.2.2.1.3, {#IFADMINSTATUS},1.3.6.1.2.1.2.2.1.7, {#IFOPERSTATUS},1.3.6.1.2.1.2.2.1.8]
+IF-MIB::ifOutOctets.1 
+IF-MIB::ifName.1
+IF-MIB::ifAlias.1
+IF-MIB::ifDescr.1 
+IF-MIB::ifType.1
+IF-MIB::ifAdminStatus.1
+IF-MIB::ifOperStatus.1
+
+
+
+
+
+
+
+            
+Obsidian markdown
+Написать документацию по настройке (snmp, zabbix) с помощью markdown 
+Создать прототипы в шаблоне zabbix по автоматической настройке.
+            
+            
+            
+            
+            
+            
+            
+            
+            
+SNMPv2-MIB::sysContact.0 = STRING: 	  							1.3.6.1.2.1.1.4
+SNMPv2-MIB::sysName.0 = STRING: esr-200    							1.3.6.1.2.1.1.5
+SNMPv2-MIB::sysLocation.0 = STRING: 	   						        1.3.6.1.2.1.1.6	
+SNMPv2-MIB::sysORLastChange.0 = Timeticks: (5027) 0:00:50.27                                    1.3.6.1.2.1.1.8
+SNMPv2-MIB::sysORID.1 = OID: SNMPv2-MIB::snmpMIB                                             1.3.6.1.2.1.1.9.1.2
+SNMPv2-MIB::sysORDescr.2 = STRING: View-based Access Control Model for SNMP.                 1.3.6.1.2.1.1.9.1.3
+SNMPv2-MIB::sysORUpTime.2 = Timeticks: (5027) 0:00:50.27			             1.3.6.1.2.1.1.9.1.4
+IF-MIB::ifNumber.0 = INTEGER: 8									1.3.6.1.2.1.2.1
+IF-MIB::ifIndex.1 = INTEGER: 1                                         			    1.3.6.1.2.1.2.2.1.1
+IF-MIB::ifDescr.1 = STRING: gigabitethernet 1/0/1                      	                    1.3.6.1.2.1.2.2.1.2
+IF-MIB::ifType.1 = INTEGER: ethernetCsmacd(6)                              	            1.3.6.1.2.1.2.2.1.3
+IF-MIB::ifMtu.1 = INTEGER: 1500						                    1.3.6.1.2.1.2.2.1.4													
+IF-MIB::ifSpeed.2 = Gauge32: 1000000000				1.3.6.1.2.1.2.2.1.5
+IF-MIB::ifPhysAddress.2 = STRING: a8:f9:4b:af:82:f9		1.3.6.1.2.1.2.2.1.6
+IF-MIB::ifAdminStatus.2 = INTEGER: up(1)			1.3.6.1.2.1.2.2.1.7
+IF-MIB::ifOperStatus.2 = INTEGER: up(1)					1.3.6.1.2.1.2.2.1.8
+IF-MIB::ifLastChange.2 = Timeticks: (5100) 0:00:51.00			1.3.6.1.2.1.2.2.1.9
+IF-MIB::ifInOctets.2 = Counter32: 312794				1.3.6.1.2.1.2.2.1.10
+IF-MIB::ifInUcastPkts.2 = Counter32: 2277				1.3.6.1.2.1.2.2.1.11
+IF-MIB::ifInNUcastPkts.2 = Counter32: 0					1.3.6.1.2.1.2.2.1.12
+IF-MIB::ifInDiscards.2 = Counter32: 0					1.3.6.1.2.1.2.2.1.13
+IF-MIB::ifInErrors.2 = Counter32: 0					1.3.6.1.2.1.2.2.1.14
+IF-MIB::ifInUnknownProtos.2 = Counter32: 0				1.3.6.1.2.1.2.2.1.15
+IF-MIB::ifOutOctets.2 = Counter32: 748208				1.3.6.1.2.1.2.2.1.16
+IF-MIB::ifOutUcastPkts.2 = Counter32: 1822				1.3.6.1.2.1.2.2.1.17
+IF-MIB::ifOutNUcastPkts.2 = Counter32: 0				1.3.6.1.2.1.2.2.1.18
+IF-MIB::ifOutDiscards.2 = Counter32: 0				1.3.6.1.2.1.2.2.1.19
+IF-MIB::ifOutErrors.2 = Counter32: 0				1.3.6.1.2.1.2.2.1.20
+IF-MIB::ifOutQLen.2 = Gauge32: 0					1.3.6.1.2.1.2.2.1.21
+IF-MIB::ifSpecific.2 = OID: SNMPv2-SMI::zeroDotZero        1.3.6.1.2.1.2.2.1.22
+RFC1213-MIB::ipForwarding.0 = INTEGER: forwarding(1)			1.3.6.1.2.1.4.1
+RFC1213-MIB::ipDefaultTTL.0 = INTEGER: 64				1.3.6.1.2.1.4.2
+RFC1213-MIB::ipReasmTimeout.0 = INTEGER: 0				1.3.6.1.2.1.4.13
+MAU-MIB::ifMauStatus.2.1 = INTEGER: operational(3)			1.3.6.1.2.1.26.2.1.1.4
+MAU-MIB::ifMauMediaAvailable.2.1 = INTEGER: available(3)	1.3.6.1.2.1.26.2.1.1.5
+MAU-MIB::ifMauMediaAvailableStateExits.2.1 = Counter32: 0	1.3.6.1.2.1.26.2.1.1.6
+MAU-MIB::ifMauJabberState.2.1 = INTEGER: unknown(2)		1.3.6.1.2.1.26.2.1.1.7
+MAU-MIB::ifMauJabberingStateEnters.2.1 = Counter32: 0		1.3.6.1.2.1.26.2.1.1.8
+MAU-MIB::ifMauFalseCarriers.2.1 = Counter32: 0			1.3.6.1.2.1.26.2.1.1.9
+MAU-MIB::ifMauTypeList.2.1 = INTEGER: 0				1.3.6.1.2.1.26.2.1.1.10
+MAU-MIB::ifMauDefaultType.2.1 = OID: IANA-MAU-MIB::dot3MauType10BaseTFD			1.3.6.1.2.1.26.2.1.1.11
+IF-MIB::ifName.2 = STRING: gigabitethernet 1/0/2            	1.3.6.1.2.1.31.1.1.1.1	
+IF-MIB::ifInMulticastPkts.2 = Counter32: 457           		1.3.6.1.2.1.31.1.1.1.2
+IF-MIB::ifInBroadcastPkts.2 = Counter32: 0			1.3.6.1.2.1.31.1.1.1.3
+IF-MIB::ifOutMulticastPkts.2 = Counter32: 0           		1.3.6.1.2.1.31.1.1.1.4
+IF-MIB::ifOutBroadcastPkts.2 = Counter32: 0            		1.3.6.1.2.1.31.1.1.1.5
+IF-MIB::ifLinkUpDownTrapEnable.2 = INTEGER: enabled(1)		1.3.6.1.2.1.31.1.1.1.14
+IF-MIB::ifHighSpeed.2 = Gauge32: 1000				1.3.6.1.2.1.31.1.1.1.15
+IF-MIB::ifPromiscuousMode.2 = INTEGER: false(2)           	1.3.6.1.2.1.31.1.1.1.16
+IF-MIB::ifConnectorPresent.2 = INTEGER: true(1)            	1.3.6.1.2.1.31.1.1.1.17
+IF-MIB::ifAlias.2 = STRING:            				1.3.6.1.2.1.31.1.1.1.18
+IF-MIB::ifCounterDiscontinuityTime.2 = Timeticks: (0) 0:00:00.00  1.3.6.1.2.1.31.1.1.1.19
+            
+            
+            
+            
+            
+            
+            
+5899093551:AAFXGEDlFLmIt1KrtfSvKDKMeLeBRDZLbMU
+-1001950056972            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
