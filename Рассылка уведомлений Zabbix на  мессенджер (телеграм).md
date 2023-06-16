@@ -1,5 +1,6 @@
-![[Pasted image 20230616135731.png]]
+# Рассылка уведомлений Zabbix на мессенджер (телеграм)
 
+![Pasted image 20230616135731](https://github.com/Dzahariy/Zabbix-from-snmp/assets/77004612/207be157-8d2f-46ae-93f4-1d5264786c78)
 
 ## Настройка телеграма 
 
